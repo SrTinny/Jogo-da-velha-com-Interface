@@ -6,7 +6,7 @@ Um simples e interativo Jogo da Velha, desenvolvido em HTML, CSS e JavaScript. I
 
 ## 🔗 Acesse o site
 
-Você pode visualizar e jogar o jogo [aqui](#) (adicione o link para o site quando estiver disponível).
+Você pode visualizar e jogar o jogo [aqui](https://jogo-da-velha-mu-smoky.vercel.app/)
 
 ---
 
