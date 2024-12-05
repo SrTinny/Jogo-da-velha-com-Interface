@@ -5,8 +5,12 @@ const winningMessageTextElement = document.querySelector(
 );
 const winningMessage = document.querySelector("[data-winning-message]");
 const restartButton = document.querySelector("[data-restart-button]");
+const xWinsElement = document.getElementById("x-wins");
+const oWinsElement = document.getElementById("o-wins");
 
 let isCircleTurn;
+let xWins = 0;
+let oWins = 0;
 
 const winningCombinations = [
   [0, 1, 2],
@@ -23,8 +27,8 @@ const startGame = () => {
   isCircleTurn = false;
 
   for (const cell of cellElements) {
-    cell.classList.remove("circle");
-    cell.classList.remove("x");
+    cell.classList.remove("circle", "x", "highlight");
+    cell.innerText = ""; // Limpa qualquer texto da célula
     cell.removeEventListener("click", handleClick);
     cell.addEventListener("click", handleClick, { once: true });
   }
@@ -37,20 +41,32 @@ const endGame = (isDraw) => {
   if (isDraw) {
     winningMessageTextElement.innerText = "Empate!";
   } else {
-    winningMessageTextElement.innerText = isCircleTurn
-      ? "O Venceu!"
-      : "X Venceu!";
+    if (isCircleTurn) {
+      oWins++;
+      oWinsElement.innerText = oWins; // Atualiza o contador de vitórias do O
+      winningMessageTextElement.innerText = "O Venceu!";
+    } else {
+      xWins++;
+      xWinsElement.innerText = xWins; // Atualiza o contador de vitórias do X
+      winningMessageTextElement.innerText = "X Venceu!";
+    }
   }
 
   winningMessage.classList.add("show-winning-message");
 };
 
 const checkForWin = (currentPlayer) => {
-  return winningCombinations.some((combination) => {
-    return combination.every((index) => {
+  const winningCombination = winningCombinations.find((combination) =>
+    combination.every((index) => {
       return cellElements[index].classList.contains(currentPlayer);
-    });
-  });
+    })
+  );
+
+  if (winningCombination) {
+    highlightWinningCells(winningCombination);
+    return true;
+  }
+  return false;
 };
 
 const checkForDraw = () => {
@@ -61,11 +77,11 @@ const checkForDraw = () => {
 
 const placeMark = (cell, classToAdd) => {
   cell.classList.add(classToAdd);
+  cell.innerText = classToAdd === "circle" ? "O" : "X"; // Adiciona texto para clareza
 };
 
 const setBoardHoverClass = () => {
-  board.classList.remove("circle");
-  board.classList.remove("x");
+  board.classList.remove("circle", "x");
 
   if (isCircleTurn) {
     board.classList.add("circle");
@@ -76,21 +92,22 @@ const setBoardHoverClass = () => {
 
 const swapTurns = () => {
   isCircleTurn = !isCircleTurn;
-
   setBoardHoverClass();
 };
 
+const highlightWinningCells = (combination) => {
+  combination.forEach((index) => {
+    cellElements[index].classList.add("highlight"); // Adiciona destaque às células vencedoras
+  });
+};
+
 const handleClick = (e) => {
-  // Colocar a marca (X ou Círculo)
   const cell = e.target;
   const classToAdd = isCircleTurn ? "circle" : "x";
 
   placeMark(cell, classToAdd);
 
-  // Verificar por vitória
   const isWin = checkForWin(classToAdd);
-
-  // Verificar por empate
   const isDraw = checkForDraw();
 
   if (isWin) {
@@ -98,7 +115,6 @@ const handleClick = (e) => {
   } else if (isDraw) {
     endGame(true);
   } else {
-    // Mudar símbolo
     swapTurns();
   }
 };
